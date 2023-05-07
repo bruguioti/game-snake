@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Cobrinha</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+	<link href="style.css" rel="Stylesheet">
+	
+	
+
+  </head>
+
+  <body>
+
+    <div id="score">0</div>
+    <canvas id="gameCanvas" width="300" height="300"></canvas>
+
+   
+  </body>
+	
+	
+	<script>
+	const GAME_SPEED = 100;
+    const CANVAS_BORDER_COLOUR = 'black';
+    const CANVAS_BACKGROUND_COLOUR = "white";
+    const SNAKE_COLOUR = 'lightgreen';
+    const SNAKE_BORDER_COLOUR = 'darkgreen';
+    const FOOD_COLOUR = 'red';
+    const FOOD_BORDER_COLOUR = 'darkred';
+
+    let snake = [
+      {x: 150, y: 150},
+      {x: 140, y: 150},
+      {x: 130, y: 150},
+      {x: 120, y: 150},
+      {x: 110, y: 150}
+    ]
+
+    // A pontuação do usuário
+    let score = 0;
+    // Quando definido como verdadeiro, a cobra está mudando de direção 
+    let changingDirection = false;
+    // Alimento x-coordenada
+    let foodX;
+    // Alimento y-coordenada
+    let foodY;
+    // Velocidade Horizontal
+    let dx = 10;
+    // Velocidade Vertical 
+    let dy = 0;
+
+    // Envia o elemento canvas
+    const gameCanvas = document.getElementById("gameCanvas");
+    // Retorna um contexto de desenho bidimensional 
+    const ctx = gameCanvas.getContext("2d");
+
+    // Começar o jogo
+    main();
+    // Criar o primeiro local de alimentação
+    createFood();
+    // Chama a alteração direcional sempre que uma tecla é pressionada 
+    document.addEventListener("keydown", changeDirection);
+
+
+    /**
+     * Função principal do jogo 
+     * Chamando repetidamente para avançar o jogo
+     */
+    function main() {
+      // Se o jogo acabou volte mais cedo para parar o jogo
+      if (didGameEnd()) return;
+
+      setTimeout(function onTick() {
+        changingDirection = false;
+        clearCanvas();
+        drawFood();
+        advanceSnake();
+        drawSnake();
+
+        // Chama o jogo novamente 
+        main();
+      }, GAME_SPEED)
+    }
+
+    /**
+     * Altere a cor de fundo da tela para Canvas 
+     * background_colour e desenha uma borda ao redor
+     */
+    function clearCanvas() {
+      //  Selecione a cor para preencher o desenho 
+      ctx.fillStyle = CANVAS_BACKGROUND_COLOUR;
+      //  Selecione a cor da borda da tela 
+      ctx.strokestyle = CANVAS_BORDER_COLOUR;
+
+      // Desenhe um retangulo preencido para cobrir toda a tela 
+      ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+      // Desenha uma borda ao redor de toda a tela 
+      ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
+    }
+
+    /**
+     * Desenhe a comida na tela 
+     */
+    function drawFood() {
+      ctx.fillStyle = FOOD_COLOUR;
+      ctx.strokestyle = FOOD_BORDER_COLOUR;
+      ctx.fillRect(foodX, foodY, 10, 10);
+      ctx.strokeRect(foodX, foodY, 10, 10);
+    }
+
+    /**
+     * Avance a cobra alterando as coordenadas X de suas partes 
+     * De acordo com a velocidade horizontal e as coordenadas y de suas partes 
+     * de acordo com a velocidade vertical 
+     */
+    function advanceSnake() {
+      // Cria a nova cabeça da serpente  
+      const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+      // Add a nova cabeça ao ínicio da serpente 
+      snake.unshift(head);
+
+      const didEatFood = snake[0].x === foodX && snake[0].y === foodY;
+      if (didEatFood) {
+        // Aumenta a pontuação 
+        score += 10;
+        // Exibir pontuação na tela
+        document.getElementById('score').innerHTML = score;
+
+        // Gerar novo local de comida
+        createFood();
+      } else {
+        // Remova a última parte do corpo da cobra
+        snake.pop();
+      }
+    }
+
+    /**
+     * Retorna true se a cabeça da cobra tocou em outra parte do jogo
+     * ou qualquer uma das paredes
+     */
+    function didGameEnd() {
+      for (let i = 4; i < snake.length; i++) {
+        if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true
+      }
+
+      const hitLeftWall = snake[0].x < 0;
+      const hitRightWall = snake[0].x > gameCanvas.width - 10;
+      const hitToptWall = snake[0].y < 0;
+      const hitBottomWall = snake[0].y > gameCanvas.height - 10;
+
+      return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall
+    }
+
+    /**
+     * Gera um número aleatório que é um múltiplo de 10 dado um mínimo
+     * e um número máximo
+     * @param { number } min - O número mínimo que o número aleatório pode ser
+     * @param { number } max - O número máximo que o número aleatório pode ser
+     */
+    function randomTen(min, max) {
+      return Math.round((Math.random() * (max-min) + min) / 10) * 10;
+    }
+
+    /**
+     * Cria um conjunto aleatório de coordenadas para a comida da cobra.
+     */
+    function createFood() {
+      // Gere um número aleatório a coordenada x do alimento
+      foodX = randomTen(0, gameCanvas.width - 10);
+      // Gere um número aleatório para a coordenada y do alimento
+      foodY = randomTen(0, gameCanvas.height - 10);
+
+      // se o novo local de comida for onde a cobra está atualmente, gere um novo local de comida
+      snake.forEach(function isFoodOnSnake(part) {
+        const foodIsoNsnake = part.x == foodX && part.y == foodY;
+        if (foodIsoNsnake) createFood();
+      });
+    }
+
+    /**
+     * Desenha a cobra na tela
+     */
+    function drawSnake() {
+      // percorra as partes da cobra desenhando cada parte na tela
+      snake.forEach(drawSnakePart)
+    }
+
+    /**
+     * Desenha uma parte da cobra na tela
+     * @param { object } snakePart - As coordenadas onde a peça deve ser desenhada
+     */
+    function drawSnakePart(snakePart) {
+      // Defina a cor da parte da cobra
+      ctx.fillStyle = SNAKE_COLOUR;
+
+      // Defina a cor da borda da parte da cobra
+      ctx.strokestyle = SNAKE_BORDER_COLOUR;
+
+      // Desenhe um retângulo "preenchido" para representar a parte da cobra nas coordenadas
+      // a parte está localizada
+      ctx.fillRect(snakePart.x, snakePart.y, 10, 10);
+
+      // Desenhe uma borda ao redor da parte da cobra
+      ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);
+    }
+
+    /**
+     * Altera a velocidade vertical e horizontal da cobra de acordo com o
+     * tecla que foi pressionada.
+     * A direção não pode ser mudada para a direção oposta, para evitar que a cobra
+     * de reversão
+     * Por exemplo, se a direção for 'direita', ela não pode se tornar 'esquerda'
+     * @param { object } event - The keydown event
+     */
+    function changeDirection(event) {
+      const LEFT_KEY = 37;
+      const RIGHT_KEY = 39;
+      const UP_KEY = 38;
+      const DOWN_KEY = 40;
+      /**
+        * Evite que a cobra inverta
+        * Exemplo de cenário:
+        * Snake está se movendo para a direita. O usuário pressiona para baixo e sai imediatamente
+        * e a cobra imediatamente muda de direção sem dar um passo para baixo primeiro
+        */
+      if (changingDirection) return;
+      changingDirection = true;
+
+      const keyPressed = event.keyCode;
+
+      const goingUp = dy === -10;
+      const goingDown = dy === 10;
+      const goingRight = dx === 10;
+      const goingLeft = dx === -10;
+
+      if (keyPressed === LEFT_KEY && !goingRight) {
+        dx = -10;
+        dy = 0;
+      }
+      if (keyPressed === UP_KEY && !goingDown) {
+        dx = 0;
+        dy = -10;
+      }
+      if (keyPressed === RIGHT_KEY && !goingLeft) {
+        dx = 10;
+        dy = 0;
+      }
+      if (keyPressed === DOWN_KEY && !goingUp) {
+        dx = 0;
+        dy = 10;
+      }
+    }
+
+	
+	</script>
+
+</html>
+
+
