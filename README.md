@@ -1,4 +1,4 @@
-# Jogo da Cobrinha em HTML, CSS e JavaScript
+# Jogo da Cobrinha em HTML, CSS e JavaScript :snake:
 
 Este é um simples jogo da cobrinha desenvolvido utilizando HTML, CSS e JavaScript.
 
