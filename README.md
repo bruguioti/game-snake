@@ -6,7 +6,7 @@ Este é um simples jogo da cobrinha desenvolvido utilizando HTML, CSS e JavaScri
 
 - Controles Simples: Use as teclas de seta para controlar a direção da cobra e guie-a pela tela para coletar alimentos e ganhar pontos.
 - Dificuldade Crescente: À medida que a cobra come os alimentos, ela aumenta de tamanho, tornando o jogo progressivamente mais desafiador. Tenha cuidado para não colidir com as bordas da tela ou com o próprio corpo da cobra!
-- Pontuação e Recorde: A pontuação atual e o recorde mais alto são exibidos na tela, permitindo que você acompanhe seu desempenho e tente superar seu melhor resultado.
+
 
 ## Instalação
 
