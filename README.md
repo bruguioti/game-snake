@@ -1,6 +1,6 @@
 # Jogo da Cobrinha em HTML, CSS e JavaScript :snake:
 
-Este é um simples jogo da cobrinha desenvolvido utilizando HTML, CSS e JavaScript.
+Este repositório contém a implementação clássica do jogo da cobrinha usando tecnologias web como HTML, CSS e JavaScript. O jogo da cobrinha é um clássico dos jogos de arcade e é conhecido por sua jogabilidade simples e viciante.
 
 ## Como Jogar
 
